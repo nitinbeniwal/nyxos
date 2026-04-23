@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyxOS Executive Summary — {{ target }}</title>
+    <style>
+        /* ═══════════════════════════════════════════════════
+           NyxOS Executive Summary — Self-contained inline CSS
+           Designed for non-technical stakeholders: clean,
+           readable, 1-2 pages when printed.
+           ═══════════════════════════════════════════════════ */
+
+        /* ── Reset ────────────────────────────────────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.85;
+            font-size: 15px;
+        }
+
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Container ────────────────────────────────────── */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 50px 40px;
+        }
+
+        /* ── Header ───────────────────────────────────────── */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 34px;
+            margin-bottom: 42px;
+        }
+
+        .header .brand {
+            font-size: 38px;
+            font-weight: 900;
+            color: #e74c3c;
+            letter-spacing: 6px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 6px;
+        }
+
+        .header .brand-sub {
+            font-size: 11px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #f2f2f2;
+            margin-bottom: 6px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .header .meta-row {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .header .meta-row span {
+            margin: 0 12px;
+        }
+
+        .header .meta-row .lbl {
+            color: #888;
+            font-weight: 600;
+        }
+
+        /* ── Table of Contents ────────────────────────────── */
+        .toc {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 20px 28px;
+            margin-bottom: 38px;
+        }
+
+        .toc h2 {
+            font-size: 15px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .toc ol { padding-left: 22px; }
+        .toc li { margin-bottom: 4px; font-size: 14px; }
+        .toc a { color: #3498db; }
+
+        /* ── Sections ─────────────────────────────────────── */
+        .section {
+            margin-bottom: 42px;
+            page-break-inside: avoid;
+        }
+
+        .section > h2 {
+            font-size: 20px;
+            color: #f2f2f2;
+            border-bottom: 2px solid #222;
+            padding-bottom: 6px;
+            margin-bottom: 18px;
+        }
+
+        .section p {
+            margin-bottom: 14px;
+            color: #c0c0c0;
+        }
+
+        /* ── Risk Score — Large Hero Panel ────────────────── */
+        .risk-hero {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .risk-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .risk-circle .score-num {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .risk-circle .score-of {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .risk-body h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .risk-body .risk-desc {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* ── Severity Tiles Grid ──────────────────────────── */
+        .sev-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 36px;
+        }
+
+        .sev-tile {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 18px 10px;
+            text-align: center;
+        }
+
+        .sev-tile .tile-num {
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .sev-tile .tile-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #777;
+            margin-top: 6px;
+        }
+
+        /* ── Severity Badges (inline) ─────────────────────── */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 0.82em;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .badge-critical { background: #e74c3c; }
+        .badge-high     { background: #e67e22; }
+        .badge-medium   { background: #f1c40f; color: #111; }
+        .badge-low      { background: #2ecc71; color: #111; }
+        .badge-info     { background: #3498db; }
+
+        /* ── Key Findings List ────────────────────────────── */
+        .kf-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .kf-list li {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 5px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .kf-list li .kf-text {
+            color: #c0c0c0;
+            font-size: 14px;
+        }
+
+        .kf-list li .kf-text strong {
+            color: #e0e0e0;
+        }
+
+        /* ── Priority Actions ─────────────────────────────── */
+        .actions-box {
+            background: #0d1b0d;
+            border: 1px solid #1a3a1a;
+            border-radius: 6px;
+            padding: 22px 26px;
+            margin-bottom: 20px;
+        }
+
+        .actions-box h3 {
+            color: #2ecc71;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .actions-box p {
+            color: #8fcc8f;
+            font-size: 14px;
+        }
+
+        .actions-box ol {
+            padding-left: 22px;
+            color: #8fcc8f;
+            font-size: 14px;
+        }
+
+        .actions-box li {
+            margin-bottom: 8px;
+        }
+
+        /* ── Findings Summary Table ───────────────────────── */
+        .sf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .sf-table th {
+            background: #181818;
+            color: #999;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid #333;
+        }
+
+        .sf-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #1a1a1a;
+            vertical-align: top;
+            color: #bbb;
+        }
+
+        .sf-table tr:hover { background: #111; }
+
+        /* ── Appendix Timeline ────────────────────────────── */
+        .tl-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .tl-table th {
+            background: #181818;
+            color: #999;
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .tl-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #111;
+            color: #888;
+        }
+
+        /* ── Empty / Footer ───────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #555;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 28px;
+            border-top: 1px solid #222;
+            color: #444;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .confidential {
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a0a0a;
+            border: 1px solid #331a1a;
+            border-radius: 4px;
+            color: #e74c3c;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* ── Print ────────────────────────────────────────── */
+        @media print {
+            body {
+                background: #fff;
+                color: #222;
+                font-size: 12px;
+            }
+            .container {
+                max-width: 100%;
+                padding: 10px 20px;
+            }
+            .header {
+                border-bottom-color: #222;
+            }
+            .header .brand {
+                color: #c0392b;
+            }
+            .header h1, .section > h2, .risk-body h3 {
+                color: #111;
+            }
+            .toc, .risk-hero, .sev-tile, .kf-list li {
+                background: #f7f7f7;
+                border-color: #ccc;
+            }
+            .actions-box {
+                background: #f0f7f0;
+                border-color: #cdc;
+                color: #333;
+            }
+            .actions-box h3 { color: #1a7a1a; }
+            .actions-box p, .actions-box ol { color: #333; }
+            .section p { color: #444; }
+            .kf-list li .kf-text { color: #444; }
+            .kf-list li .kf-text strong { color: #222; }
+            .badge-medium, .badge-low { color: #333; }
+            .sf-table td { color: #444; }
+            .confidential {
+                background: #fff0f0;
+                border-color: #dcc;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ═════════════════════════════════════════════════════
+         HEADER — Centred, clean, branded
+         ═════════════════════════════════════════════════════ -->
+    <div class="header">
+        <div class="brand">NyxOS</div>
+        <div class="brand-sub">AI-Native Cybersecurity Platform</div>
+        <h1>Executive Summary</h1>
+        <div class="subtitle">Security Assessment of {{ target }}</div>
+        <div class="meta-row">
+            <span><span class="lbl">Date:</span> {{ date }}</span>
+            <span><span class="lbl">Author:</span> {{ author }}</span>
+            <span><span class="lbl">Project:</span> {{ project_name }}</span>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         TABLE OF CONTENTS
+         ═════════════════════════════════════════════════════ -->
+    <div class="toc">
+        <h2>Contents</h2>
+        <ol>
+            <li><a href="#es-risk">Risk Overview</a></li>
+            <li><a href="#es-summary">Assessment Summary</a></li>
+            <li><a href="#es-key">Key Findings</a></li>
+            <li><a href="#es-actions">Priority Actions</a></li>
+            <li><a href="#es-findings">Findings at a Glance</a></li>
+            <li><a href="#es-appendix">Appendix</a></li>
+        </ol>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         1. RISK OVERVIEW — Hero panel + severity tiles
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-risk">
+        <h2>1. Risk Overview</h2>
+
+        <div class="risk-hero">
+            <div class="risk-circle" style="background:{{ risk_score.color }};">
+                <span class="score-num">{{ risk_score.score }}</span>
+                <span class="score-of">/ 10</span>
+            </div>
+            <div class="risk-body">
+                <h3 style="color:{{ risk_score.color }};">
+                    Overall Risk: {{ risk_score.level }}
+                </h3>
+                <div class="risk-desc">{{ risk_score.description }}</div>
+            </div>
+        </div>
+
+        <div class="sev-grid">
+            <div class="sev-tile">
+                <div class="tile-num" style="color:#e74c3c;">{{ severity_counts.critical }}</div>
+                <div class="tile-label">Critical</div>
+            </div>
+            <div class="sev-tile">
+                <div class="tile-num" style="color:#e67e22;">{{ severity_counts.high }}</div>
+                <div class="tile-label">High</div>
+            </div>
+            <div class="sev-tile">
+                <div class="tile-num" style="color:#f1c40f;">{{ severity_counts.medium }}</div>
+                <div class="tile-label">Medium</div>
+            </div>
+            <div class="sev-tile">
+                <div class="tile-num" style="color:#2ecc71;">{{ severity_counts.low }}</div>
+                <div class="tile-label">Low</div>
+            </div>
+            <div class="sev-tile">
+                <div class="tile-num" style="color:#3498db;">{{ severity_counts.info }}</div>
+                <div class="tile-label">Informational</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         2. ASSESSMENT SUMMARY — AI-written executive text
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-summary">
+        <h2>2. Assessment Summary</h2>
+        {% for para in executive_summary.split('\n\n') %}
+        {% if para.strip() %}
+        <p>{{ para.strip() }}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         3. KEY FINDINGS — Top critical/high items as list
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-key">
+        <h2>3. Key Findings</h2>
+
+        {% set key_findings = [] %}
+        {% for f in findings if f.severity in ('critical', 'high') %}
+            {% if key_findings.append(f) %}{% endif %}
+        {% endfor %}
+
+        {% if key_findings %}
+        <ul class="kf-list">
+            {% for f in key_findings %}
+            <li>
+                <span class="badge badge-{{ f.severity }}">{{ f.severity }}</span>
+                <span class="kf-text">
+                    <strong>{{ f.title }}</strong>
+                    {% if f.url %} — {{ f.url }}{% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% elif findings %}
+        <p>
+            No critical or high-severity findings were identified.
+            All {{ total_findings }} finding(s) are of medium, low, or
+            informational severity.
+        </p>
+        {% else %}
+        <div class="empty">No findings were identified during this assessment.</div>
+        {% endif %}
+
+        {% if findings %}
+        {% set med_findings = [] %}
+        {% for f in findings if f.severity == 'medium' %}
+            {% if med_findings.append(f) %}{% endif %}
+        {% endfor %}
+        {% if med_findings %}
+        <p style="margin-top:18px; color:#999; font-size:14px;">
+            Additionally, <strong style="color:#f1c40f;">{{ med_findings|length }}</strong>
+            medium-severity finding(s) were identified that warrant attention
+            in the near term.
+        </p>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         4. PRIORITY ACTIONS — AI remediation, styled
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-actions">
+        <h2>4. Priority Actions</h2>
+
+        <div class="actions-box">
+            <h3>Recommended Next Steps</h3>
+            {% for para in remediation.split('\n\n') %}
+            {% if para.strip() %}
+            <p>{{ para.strip() }}</p>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         5. FINDINGS AT A GLANCE — Compact table
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-findings">
+        <h2>5. Findings at a Glance</h2>
+
+        {% if findings %}
+        <table class="sf-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Severity</th>
+                    <th>Finding</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in findings %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><span class="badge badge-{{ f.severity }}">{{ f.severity }}</span></td>
+                    <td>{{ f.title }}</td>
+                    <td>{{ f.type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No findings to display.</div>
+        {% endif %}
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         6. APPENDIX — Commands & Timeline
+         ═════════════════════════════════════════════════════ -->
+    <div class="section" id="es-appendix">
+        <h2>6. Appendix</h2>
+
+        {% if commands_timeline %}
+        <table class="tl-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Command</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in commands_timeline %}
+                <tr>
+                    <td>{{ e.timestamp }}</td>
+                    <td>{{ e.command }}</td>
+                    <td>{{ e.result }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#555; font-size:13px;">No command timeline data available for this assessment.</p>
+        {% endif %}
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         CONFIDENTIAL NOTICE
+         ═════════════════════════════════════════════════════ -->
+    <div class="confidential">
+        Confidential — For Authorised Recipients Only
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════
+         FOOTER
+         ═════════════════════════════════════════════════════ -->
+    <div class="footer">
+        Generated by <strong style="color:#e74c3c;">NyxOS</strong> v{{ nyxos_version }}
+        &nbsp;|&nbsp; {{ date }}
+        &nbsp;|&nbsp; {{ author }}
+    </div>
+
+</div>
+</body>
+</html>

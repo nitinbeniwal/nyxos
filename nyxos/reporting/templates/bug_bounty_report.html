@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyxOS Bug Bounty Report — {{ target }}</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        /* ── Header ───────────────────────────────────────── */
+        .header {
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 26px;
+            margin-bottom: 36px;
+        }
+
+        .header .brand {
+            font-size: 30px;
+            font-weight: 900;
+            color: #e74c3c;
+            letter-spacing: 5px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 14px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #f2f2f2;
+            margin-bottom: 10px;
+        }
+
+        .meta-line {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .meta-line .lbl { color: #aaa; font-weight: 600; }
+        .meta-line span { margin-right: 22px; }
+
+        /* ── Table of Contents ────────────────────────────── */
+        .toc {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 20px 26px;
+            margin-bottom: 34px;
+        }
+
+        .toc h2 {
+            font-size: 16px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .toc ol { padding-left: 22px; }
+        .toc li { margin-bottom: 5px; }
+        .toc a { color: #3498db; }
+
+        /* ── Section ──────────────────────────────────────── */
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .section > h2 {
+            font-size: 20px;
+            color: #f2f2f2;
+            border-bottom: 2px solid #222;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+        }
+
+        .section p {
+            margin-bottom: 12px;
+            color: #c0c0c0;
+        }
+
+        /* ── Severity Badges ──────────────────────────────── */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 0.82em;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .badge-critical { background: #e74c3c; }
+        .badge-high     { background: #e67e22; }
+        .badge-medium   { background: #f1c40f; color: #111; }
+        .badge-low      { background: #2ecc71; color: #111; }
+        .badge-info     { background: #3498db; }
+
+        /* ── Summary Table ────────────────────────────────── */
+        .sum-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .sum-table th {
+            background: #181818;
+            color: #999;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid #333;
+        }
+
+        .sum-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #1a1a1a;
+            vertical-align: top;
+        }
+
+        .sum-table tr:hover { background: #111; }
+
+        /* ── Bug Card ─────────────────────────────────────── */
+        .bug {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 26px;
+            margin-bottom: 26px;
+            border-left: 4px solid #333;
+            page-break-inside: avoid;
+        }
+        .bug.bug-critical { border-left-color: #e74c3c; }
+        .bug.bug-high     { border-left-color: #e67e22; }
+        .bug.bug-medium   { border-left-color: #f1c40f; }
+        .bug.bug-low      { border-left-color: #2ecc71; }
+        .bug.bug-info     { border-left-color: #3498db; }
+
+        .bug .bug-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f2f2f2;
+            margin-bottom: 8px;
+        }
+
+        .bug .bug-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 14px;
+        }
+
+        .bug .field-hd {
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 16px;
+            margin-bottom: 6px;
+        }
+
+        .bug .desc {
+            color: #bbb;
+            margin-bottom: 6px;
+        }
+
+        .bug .evidence {
+            background: #050505;
+            border: 1px solid #222;
+            border-radius: 4px;
+            padding: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff41;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .bug .impact-box {
+            background: #1b0d0d;
+            border: 1px solid #3a1a1a;
+            border-radius: 4px;
+            padding: 14px;
+            color: #e0a0a0;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .bug .fix-box {
+            background: #0d1b0d;
+            border: 1px solid #1a3a1a;
+            border-radius: 4px;
+            padding: 14px;
+            color: #7fcc7f;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .bug .fix-box strong { color: #2ecc71; }
+
+        /* ── Empty / Footer ───────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #555;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 26px;
+            border-top: 1px solid #222;
+            color: #444;
+            font-size: 12px;
+        }
+
+        /* ── Print ────────────────────────────────────────── */
+        @media print {
+            body { background: #fff; color: #222; font-size: 11px; }
+            .container { max-width: 100%; padding: 10px; }
+            .header { border-bottom-color: #222; }
+            .header h1, .section > h2, .bug .bug-title { color: #111; }
+            .toc, .bug { background: #f7f7f7; border-color: #ccc; }
+            .evidence { background: #f0f0f0; color: #222; border-color: #ccc; }
+            .impact-box { background: #fdf0f0; color: #333; border-color: #dcc; }
+            .fix-box { background: #f0fdf0; color: #333; border-color: #cdc; }
+            .badge-medium, .badge-low { color: #333; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ═════ HEADER ═════ -->
+    <div class="header">
+        <div class="brand">NyxOS</div>
+        <h1>Bug Bounty Report</h1>
+        <div class="meta-line">
+            <span><span class="lbl">Target:</span> {{ target }}</span>
+            <span><span class="lbl">Date:</span> {{ date }}</span>
+            <span><span class="lbl">Researcher:</span> {{ author }}</span>
+        </div>
+    </div>
+
+    <!-- ═════ TABLE OF CONTENTS ═════ -->
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ol>
+            <li><a href="#bb-summary">Summary</a></li>
+            <li><a href="#bb-overview">Vulnerabilities Found ({{ total_findings }})</a></li>
+            <li><a href="#bb-details">Detailed Bug Reports</a></li>
+            <li><a href="#bb-remed">Remediation Summary</a></li>
+        </ol>
+    </div>
+
+    <!-- ═════ 1. SUMMARY ═════ -->
+    <div class="section" id="bb-summary">
+        <h2>1. Summary</h2>
+        {% for para in executive_summary.split('\n\n') %}
+        {% if para.strip() %}
+        <p>{{ para.strip() }}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- ═════ 2. OVERVIEW TABLE ═════ -->
+    <div class="section" id="bb-overview">
+        <h2>2. Vulnerabilities Found ({{ total_findings }})</h2>
+        {% if findings %}
+        <table class="sum-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Severity</th>
+                    <th>Title</th>
+                    <th>Endpoint</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in findings %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><span class="badge badge-{{ f.severity }}">{{ f.severity }}</span></td>
+                    <td><a href="#bb-{{ loop.index }}">{{ f.title }}</a></td>
+                    <td>{{ f.url if f.url else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No vulnerabilities were identified.</div>
+        {% endif %}
+    </div>
+
+    <!-- ═════ 3. DETAILED BUG REPORTS ═════ -->
+    {% if findings %}
+    <div class="section" id="bb-details">
+        <h2>3. Detailed Bug Reports</h2>
+
+        {% for f in findings %}
+        <div class="bug bug-{{ f.severity }}" id="bb-{{ loop.index }}">
+            <div class="bug-title">
+                <span class="badge badge-{{ f.severity }}">{{ f.severity }}</span>
+                &nbsp;{{ f.title }}
+            </div>
+            <div class="bug-meta">
+                {% if f.url %}Endpoint: {{ f.url }} &nbsp;|&nbsp;{% endif %}
+                Type: {{ f.type }}
+                {% if f.tool_used %}&nbsp;|&nbsp; Tool: {{ f.tool_used }}{% endif %}
+                &nbsp;|&nbsp; {{ f.timestamp }}
+            </div>
+
+            <div class="field-hd">Description</div>
+            <div class="desc">{{ f.narrative }}</div>
+
+            {% if f.evidence %}
+            <div class="field-hd">Proof of Concept / Evidence</div>
+            <div class="evidence">{{ f.evidence }}</div>
+            {% endif %}
+
+            <div class="field-hd">Impact</div>
+            <div class="impact-box">
+                {{ f.narrative }}
+            </div>
+
+            {% if f.recommendation %}
+            <div class="field-hd">Recommended Fix</div>
+            <div class="fix-box">
+                <strong>Fix:</strong> {{ f.recommendation }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+    </div>
+    {% endif %}
+
+    <!-- ═════ 4. REMEDIATION ═════ -->
+    <div class="section" id="bb-remed">
+        <h2>4. Remediation Summary</h2>
+        {% for para in remediation.split('\n\n') %}
+        {% if para.strip() %}
+        <p>{{ para.strip() }}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- ═════ FOOTER ═════ -->
+    <div class="footer">
+        Generated by <strong style="color:#e74c3c;">NyxOS</strong> v{{ nyxos_version }}
+        &nbsp;|&nbsp; {{ date }}
+        &nbsp;|&nbsp; Submitted responsibly.
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+    "webhook_url": "",
+    "notify_severities": ["critical", "high"],
+    "include_evidence": false,
+    "session_summary": true
+}

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyxOS — AI-Native Cybersecurity Dashboard</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <!-- Self-hosted fonts fallback to system monospace/sans -->
+    <style>
+        @font-face {
+            font-family: 'NyxMono';
+            src: local('JetBrains Mono'), local('Fira Code'), local('Consolas'), local('monospace');
+        }
+        @font-face {
+            font-family: 'NyxSans';
+            src: local('Inter'), local('Segoe UI'), local('sans-serif');
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════ TOP BAR ═══════════════ -->
+    <header id="topbar">
+        <div class="topbar-left">
+            <div class="logo">
+                <span class="logo-bracket">[</span><span class="logo-text">NyxOS</span><span class="logo-bracket">]</span>
+            </div>
+            <span class="topbar-separator">│</span>
+            <span class="topbar-label">Project:</span>
+            <span id="topbar-project" class="topbar-value">default</span>
+            <span class="topbar-separator">│</span>
+            <span class="topbar-label">Provider:</span>
+            <span id="topbar-provider" class="topbar-value">—</span>
+            <span class="topbar-separator">│</span>
+            <span id="ws-status" class="ws-indicator ws-disconnected" title="WebSocket disconnected">
+                <span class="ws-dot"></span>
+                <span class="ws-label">Disconnected</span>
+            </span>
+        </div>
+        <div class="topbar-right">
+            <div class="token-counter" title="Tokens used today">
+                <span class="token-icon">⚡</span>
+                <span id="topbar-tokens">0</span>
+                <span class="token-suffix">tokens today</span>
+            </div>
+            <button id="btn-theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+            <button id="btn-generate-report" class="icon-btn" title="Generate report" aria-label="Generate report">📄</button>
+        </div>
+    </header>
+
+    <!-- ═══════════════ MAIN LAYOUT ═══════════════ -->
+    <div id="layout">
+        <!-- ─── SIDEBAR ─── -->
+        <aside id="sidebar">
+            <!-- Status Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-heading">Status</h3>
+                <div class="sidebar-content">
+                    <div class="status-row">
+                        <span class="status-label">System</span>
+                        <span id="status-system" class="status-badge badge-online">Online</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">AI</span>
+                        <span id="status-ai" class="status-badge badge-idle">Idle</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Commands</span>
+                        <span id="status-commands" class="status-value">0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Findings</span>
+                        <span id="status-findings" class="status-value">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-heading">Skills</h3>
+                <ul id="skills-list" class="sidebar-list">
+                    <li class="skill-item" data-skill="nmap">
+                        <span class="skill-dot"></span> nmap
+                    </li>
+                    <li class="skill-item" data-skill="web">
+                        <span class="skill-dot"></span> web
+                    </li>
+                    <li class="skill-item" data-skill="recon">
+                        <span class="skill-dot"></span> recon
+                    </li>
+                    <li class="skill-item" data-skill="forensics">
+                        <span class="skill-dot"></span> forensics
+                    </li>
+                    <li class="skill-item" data-skill="ctf">
+                        <span class="skill-dot"></span> ctf
+                    </li>
+                    <li class="skill-item" data-skill="password">
+                        <span class="skill-dot"></span> password
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-heading">Token Stats</h3>
+                <div class="sidebar-content">
+                    <div class="stat-bar">
+                        <span class="stat-bar-label">Today</span>
+                        <div class="stat-bar-track">
+                            <div id="stat-bar-today" class="stat-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <span id="stat-today-value" class="stat-bar-value">0</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span class="stat-bar-label">Month</span>
+                        <div class="stat-bar-track">
+                            <div id="stat-bar-month" class="stat-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <span id="stat-month-value" class="stat-bar-value">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-heading">Projects</h3>
+                <ul id="projects-list" class="sidebar-list">
+                    <li class="project-item active" data-project="default">
+                        <span class="project-dot"></span> default
+                    </li>
+                </ul>
+            </section>
+        </aside>
+
+        <!-- ─── MAIN PANEL ─── -->
+        <main id="main-panel">
+            <!-- View tabs -->
+            <div id="main-tabs">
+                <button class="tab-btn active" data-view="terminal">Terminal</button>
+                <button class="tab-btn" data-view="scan">Scan Viewer</button>
+                <button class="tab-btn" data-view="report">Report</button>
+            </div>
+
+            <!-- Terminal View -->
+            <div id="view-terminal" class="main-view active">
+                <div id="terminal-output"></div>
+            </div>
+
+            <!-- Scan Viewer View -->
+            <div id="view-scan" class="main-view">
+                <div id="scan-viewer-content">
+                    <div class="empty-state">
+                        <span class="empty-icon">🔍</span>
+                        <p>No scan results yet. Run a scan to see results here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report View -->
+            <div id="view-report" class="main-view">
+                <div id="report-content">
+                    <div class="empty-state">
+                        <span class="empty-icon">📄</span>
+                        <p>No report generated. Click the report button to generate one.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Thinking Indicator -->
+            <div id="ai-thinking" class="ai-thinking hidden">
+                <div class="thinking-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <span class="thinking-label">AI is thinking...</span>
+            </div>
+        </main>
+
+        <!-- ─── FINDINGS PANEL ─── -->
+        <aside id="findings-panel">
+            <div class="findings-header">
+                <h3 class="sidebar-heading">Findings</h3>
+                <span id="findings-total" class="findings-count">0</span>
+            </div>
+            <!-- Severity Summary -->
+            <div id="severity-summary" class="severity-summary">
+                <div class="severity-row" data-severity="critical">
+                    <span class="severity-dot severity-critical"></span>
+                    <span class="severity-name">Critical</span>
+                    <span id="count-critical" class="severity-count">0</span>
+                </div>
+                <div class="severity-row" data-severity="high">
+                    <span class="severity-dot severity-high"></span>
+                    <span class="severity-name">High</span>
+                    <span id="count-high" class="severity-count">0</span>
+                </div>
+                <div class="severity-row" data-severity="medium">
+                    <span class="severity-dot severity-medium"></span>
+                    <span class="severity-name">Medium</span>
+                    <span id="count-medium" class="severity-count">0</span>
+                </div>
+                <div class="severity-row" data-severity="low">
+                    <span class="severity-dot severity-low"></span>
+                    <span class="severity-name">Low</span>
+                    <span id="count-low" class="severity-count">0</span>
+                </div>
+                <div class="severity-row" data-severity="info">
+                    <span class="severity-dot severity-info"></span>
+                    <span class="severity-name">Info</span>
+                    <span id="count-info" class="severity-count">0</span>
+                </div>
+            </div>
+            <!-- Findings List -->
+            <div id="findings-list" class="findings-list"></div>
+        </aside>
+    </div>
+
+    <!-- ═══════════════ INPUT BAR ═══════════════ -->
+    <footer id="input-bar">
+        <span class="input-prefix">[AI] &gt;</span>
+        <input
+            type="text"
+            id="command-input"
+            placeholder="Type a command or describe what you want..."
+            autocomplete="off"
+            spellcheck="false"
+        >
+        <button id="btn-execute" class="execute-btn" title="Execute (Enter)">
+            Execute ▶
+        </button>
+    </footer>
+
+    <!-- ═══════════════ TOAST CONTAINER ═══════════════ -->
+    <div id="toast-container"></div>
+
+    <!-- ═══════════════ REPORT MODAL ═══════════════ -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h3 class="modal-title">Generate Report</h3>
+            <div class="modal-body">
+                <label class="modal-label">Report Type</label>
+                <select id="report-type-select" class="modal-select">
+                    <option value="pentest">Penetration Test Report</option>
+                    <option value="bug_bounty">Bug Bounty Report</option>
+                    <option value="executive">Executive Summary</option>
+                    <option value="ctf_writeup">CTF Writeup</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-modal-cancel" class="modal-btn modal-btn-cancel">Cancel</button>
+                <button id="btn-modal-generate" class="modal-btn modal-btn-confirm">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <script src="components/terminal.js"></script>
+    <script src="components/scan_viewer.js"></script>
+    <script src="components/findings_panel.js"></script>
+    <script src="assets/app.js"></script>
+</body>
+</html>
