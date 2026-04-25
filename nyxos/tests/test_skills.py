@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 from nyxos.tests.conftest import (
-    MockSkillResult, MockScope,
+    MockAIResponse, MockSkillResult, MockScope,
     NMAP_OUTPUT, GOBUSTER_OUTPUT, NIKTO_OUTPUT, CURL_HEADERS,
     EXIFTOOL_OUTPUT, WHOIS_OUTPUT, JOHN_OUTPUT,
 )
@@ -176,12 +176,14 @@ class TestWebSkill:
         assert len(findings) >= 3
 
     def test_url_scope_check(self):
+        """Verify scope-checking logic for URL targets."""
         scope = MockScope(targets=["192.168.1.0/24", "example.com"])
-        in_scope_url = "http://192.168.1.50/admin"
+        in_scope_url = "http://example.com/admin"
         out_scope_url = "http://10.0.0.1/admin"
-        # Simple check
-        assert any(t.split("/")[0] in in_scope_url for t in scope.targets)
-        assert not any("10.0.0.1" in t for t in scope.targets)
+        # Domain target should match in-scope URL
+        assert any(t in in_scope_url for t in scope.targets)
+        # Out-of-scope IP should not match any target
+        assert not any(t.split("/")[0] in out_scope_url for t in scope.targets)
 
     def test_sqli_flagged_high_risk(self):
         """sqlmap commands must be HIGH or CRITICAL risk."""
@@ -383,7 +385,7 @@ class TestPasswordSkill:
         assert detect_hash_type("aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d") == "SHA1"
         assert detect_hash_type("a" * 64) == "SHA256"
         assert detect_hash_type("a" * 128) == "SHA512"
-        assert detect_hash_type("\$2b$12$abcdefghijklmnopqrstuv") == "bcrypt"
+        assert detect_hash_type(r"$2b$12$abcdefghijklmnopqrstuv") == "bcrypt"
 
     def test_wordlist_manager(self):
         defaults = {

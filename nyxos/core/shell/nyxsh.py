@@ -569,11 +569,27 @@ class NyxShell:
         if any(op in text for op in shell_operators):
             return "shell"
 
-        # 5. Check if first token is an executable on $PATH
+        # 5. Natural language heuristics — catch before $PATH check
+        #    If input looks like a sentence (5+ words, NL indicators),
+        #    it's almost certainly a query for the AI, even if the first
+        #    word happens to be an executable name (e.g. "find open ports").
+        words = text.split()
+        nl_indicators = (
+            "how", "what", "why", "when", "where", "which", "who",
+            "can", "could", "would", "should", "please", "help",
+            "show", "explain", "tell", "describe", "list",
+            "is", "are", "do", "does", "the", "this", "that",
+            "on", "for", "about", "using", "with", "any",
+            "open", "ports", "vulnerabilities", "target",
+        )
+        if len(words) >= 4 and any(w.lower() in nl_indicators for w in words[1:]):
+            return "natural_language"
+
+        # 6. Check if first token is an executable on $PATH
         if self._command_exists(first_token):
             return "shell"
 
-        # 6. Everything else → natural language for the AI
+        # 7. Everything else → natural language for the AI
         return "natural_language"
 
     @staticmethod

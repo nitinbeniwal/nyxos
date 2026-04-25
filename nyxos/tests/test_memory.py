@@ -6,7 +6,7 @@ Tests for session, project, and user memory persistence and aggregation.
 import json
 import pytest
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # ─── Lightweight memory implementations for testing ──────────
@@ -18,13 +18,13 @@ class SessionMemory:
         self.commands: list = []
         self.findings: list = []
         self.targets: list = []
-        self.started_at: str = datetime.utcnow().isoformat()
+        self.started_at: str = datetime.now(timezone.utc).isoformat()
 
     def record_command(self, cmd: dict) -> None:
-        self.commands.append({**cmd, "ts": datetime.utcnow().isoformat()})
+        self.commands.append({**cmd, "ts": datetime.now(timezone.utc).isoformat()})
 
     def record_finding(self, finding: dict) -> None:
-        self.findings.append({**finding, "ts": datetime.utcnow().isoformat()})
+        self.findings.append({**finding, "ts": datetime.now(timezone.utc).isoformat()})
 
     def add_target(self, target: str) -> None:
         if target not in self.targets:

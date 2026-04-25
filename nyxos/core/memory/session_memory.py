@@ -7,7 +7,7 @@ Tracks what's happening RIGHT NOW.
 """
 
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 
 

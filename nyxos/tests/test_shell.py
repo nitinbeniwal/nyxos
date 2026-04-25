@@ -56,12 +56,18 @@ def classify_input(text: str) -> str:
     for op in SHELL_OPERATORS:
         if op in text:
             return "shell"
+    # Natural language heuristic — check BEFORE known-binary fallback.
+    # If 4+ words and contains NL markers, it is a sentence even when
+    # the first word happens to be an executable (e.g. "find open ports").
+    lower = f" {text.lower()} "
+    words = text.split()
+    if len(words) >= 4 and any(m in lower for m in NL_MARKERS):
+        return "natural_language"
     if first_word in KNOWN_BINARIES:
         return "shell"
-    lower = f" {text.lower()} "
     if any(m in lower for m in NL_MARKERS):
         return "natural_language"
-    if len(text.split()) >= 3:
+    if len(words) >= 3:
         return "natural_language"
     return "shell"
 

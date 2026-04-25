@@ -1,18 +1,42 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 *.egg-info/
+*.egg
 dist/
 build/
-.eggs/
-*.egg
-.env
-.venv
-nyxos-env/
-*.iso
-*.squashfs
+*.whl
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# NyxOS user data
 .nyxos/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
+
+# Test/build artifacts
 .pytest_cache/
-.coverage
 htmlcov/
+.coverage
+*.iso
+
+# Temp files
+/tmp/
+test_results.txt
+BUGS.md
