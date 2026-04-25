@@ -20,7 +20,6 @@
 
 [![Tests: 108 Passing](https://img.shields.io/badge/Tests-108_Passing-00D26A?style=for-the-badge&logo=pytest&logoColor=white)](#-testing)
 [![AI Providers](https://img.shields.io/badge/AI-Claude_%7C_OpenAI_%7C_Gemini_%7C_Ollama-7B2FBE?style=for-the-badge)](#-ai-providers)
-[![Stars](https://img.shields.io/github/stars/nitinbeniwal/nyxos?style=for-the-badge&color=FFD700)](https://github.com/nitinbeniwal/nyxos/stargazers)
 
 <br/>
 
